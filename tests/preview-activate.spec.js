@@ -31,12 +31,12 @@ test.describe('Preview Page Activate', () => {
       await loginPage.navigate();
       await expect(page).toHaveTitle(/AEM/);
       await loginPage.submit();
-      await page.waitForTimeout(3000);
+      await page.waitForTimeout(5000);
 
       await loginPage.enterEmail(user.email);
       await loginPage.enterCredentials(user.userId, user.password);
 
-      await page.waitForTimeout(10000);
+      await page.waitForTimeout(15000);
       await expect(page).toHaveTitle(/AEM/);
 
       // Navigate to the specific content path

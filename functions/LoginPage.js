@@ -1,4 +1,3 @@
-
 const { ExcelUtils } = require('../excelHelper'); // Assuming you have an ExcelUtils file to handle reading/writing Excel
 
 class LoginPage {
@@ -21,7 +20,7 @@ class LoginPage {
     }
 
     async navigateToSites(fullContentPath) {
-        const fullUrl = `${this.baseUrl}${fullContentPath}`; // Use fullContentPath
+        const fullUrl = `${this.baseUrl}${fullContentPath}`;
         console.log(`Navigating to full URL: ${fullUrl}`);
         await this.page.goto(fullUrl);
     }
@@ -41,29 +40,19 @@ class LoginPage {
         await this.page.locator(this.signOnButtonSelector).click();
     }
 
-    // Update the previewActivate method to handle the fullContentPath
     async previewActivate(fullContentPath) {
         if (!fullContentPath) {
             console.error('fullContentPath is undefined or empty');
-            return false; // or handle the error as needed
+            return false;
         }
 
-
-        // Locate the checkbox for the item based on the full content path
         const checkboxLocator = this.page.frameLocator('iframe[name="Main Content"]').locator(
             `//coral-columnview-item[@data-foundation-collection-item-id='${fullContentPath}']//span[@handle='checkbox']`
         );
 
-        // Click the checkbox to select the item
         await checkboxLocator.click();
 
-        // Check the "Previewed By" label after interacting with the item
-        // const previewValue = await this.page.frameLocator('iframe[name="Main Content"]').locator("//coral-columnview-preview-value[last()-1]").innerText();
-        // console.log(`Preview value: ${previewValue}`);
         const previewedByValue = await this.page.frameLocator('iframe[name="Main Content"]').locator("//coral-columnview-preview-value[last()]").innerText();
-        // console.log(`Previewed By value: ${previewedByValue}`);
-
-        // Fetch the publishedBy, published date, and modified date values
         const publishedBy = await this.page.frameLocator('iframe[name="Main Content"]').locator('//coral-columnview-preview-label[text()="Published By"]/following-sibling::coral-columnview-preview-value').first().innerText();
         const publishedDateStr = await this.page.frameLocator('iframe[name="Main Content"]').locator('//coral-columnview-preview-label[text()="Published"]/following-sibling::coral-columnview-preview-value').first().innerText();
         const modifiedDateStr = await this.page.frameLocator('iframe[name="Main Content"]').locator('//coral-columnview-preview-label[text()="Modified"]/following-sibling::coral-columnview-preview-value').first().innerText();
@@ -72,53 +61,38 @@ class LoginPage {
         console.log(`Value for 'publishedDateStr': ${publishedDateStr}`);
         console.log(`Value for 'modifiedDateStr': ${modifiedDateStr}`);
 
-        //await this.page.pause();
-
-        // Handle the activation logic based on the preview status
-        // Check if publishedBy is not 'Not published'
         if (publishedBy !== 'Not published') {
+            const publishedDate = this.isRelativeDate(publishedDateStr) 
+                ? await this.parseRelativeDate(publishedDateStr) 
+                : await this.parseAbsoluteDate(publishedDateStr);
+            const modifiedDate = await this.parseAbsoluteDate(modifiedDateStr);
 
-            // Convert the published and modified date strings into Date objects
-            const publishedDate = new Date(publishedDateStr);
-            const modifiedDate = new Date(modifiedDateStr);
-
-            // Check if the modified date is not after the published date
             if (modifiedDate <= publishedDate) {
                 console.log("Activating preview...");
 
-                // Activate the preview following your original logic
                 await this.page.waitForTimeout(2000);
                 await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Manage Publication' }).click();
                 await this.page.waitForTimeout(2000);
                 await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select Preview').click();
-                //await this.page.waitForTimeout(2000);
                 await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Next' }).click();
-                //await this.page.waitForTimeout(2000);
                 await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select All').click();
-                //await this.page.waitForTimeout(2000);
                 await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Publish', exact: true }).click();
                 await this.page.waitForTimeout(2000);
                 await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Done' }).click();
-                //await this.page.waitForTimeout(20000);
 
-                // After publishing, confirm the status
-                await checkboxLocator.click(); // Interact again if necessary
-                await this.page.waitForTimeout(2000);
-                //return previewedByValue === 'workflow-process-service';
+                await checkboxLocator.click();
+                await this.page.waitForTimeout(5000);
                 if (previewedByValue.includes('Published') || previewedByValue.includes('Publication Pending') || previewedByValue.includes('workflow-process-service')) {
-                    return true; // Update the value
+                    return true;
                 } else {
                     console.log("Page is not Published or still in progress.");
-                    return false; // Not published or other status
+                    return false;
                 }
-
             } else {
                 console.log("The modified date is after the published date. Not activating preview.");
                 return false;
             }
-
         } else {
-            // Otherwise, preview is not activated
             console.log("Preview is not activated as the content is 'Not published'.");
             return false;
         }
@@ -126,11 +100,38 @@ class LoginPage {
 
     async performAbbvieProApproversAction1(fullContentPath) {
         console.log("Executing abbvie-pro-approvers action 1...");
-        console.log(`Navigating to content path: ${fullContentPath}`); // Debug log
+        console.log(`Navigating to content path: ${fullContentPath}`);
         await this.navigateToSites(fullContentPath);
         await this.page.waitForTimeout(3000);
-        const isPreviewActivated = await this.previewActivate(fullContentPath); // Pass the content path to the method
+        const isPreviewActivated = await this.previewActivate(fullContentPath);
         return isPreviewActivated;
+    }
+
+    async parseRelativeDate(relativeDateStr) {
+        const now = new Date();
+        const [amount, unit] = relativeDateStr.split(' ');
+
+        switch (unit) {
+            case 'min':
+            case 'mins':
+                return new Date(now - amount * 60 * 1000);
+            case 'hour':
+            case 'hours':
+                return new Date(now - amount * 60 * 60 * 1000);
+            case 'day':
+            case 'days':
+                return new Date(now - amount * 24 * 60 * 60 * 1000);
+            default:
+                return now;
+        }
+    }
+
+    async parseAbsoluteDate(absoluteDateStr) {
+        return new Date(absoluteDateStr);
+    }
+
+    isRelativeDate(dateStr) {
+        return dateStr.includes('ago');
     }
 }
 

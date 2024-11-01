@@ -31,7 +31,7 @@ test.describe('Preview Page Activate', () => {
       await loginPage.navigate();
       await expect(page).toHaveTitle(/AEM/);
       await loginPage.submit();
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(8000);
 
       await loginPage.enterEmail(user.email);
       await loginPage.enterCredentials(user.userId, user.password);
@@ -42,7 +42,7 @@ test.describe('Preview Page Activate', () => {
       // Navigate to the specific content path
       await loginPage.navigateToSites(contentPath);
       console.log(`Navigating to full URL: ${contentPath}`);
-      await page.waitForTimeout(3000);
+      await page.waitForTimeout(5000);
 
       // Check for preview activation
       const isPreviewActivated = await loginPage.previewActivate(contentPath);

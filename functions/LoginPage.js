@@ -12,11 +12,11 @@ class LoginPage {
         this.usernameSelector = '#username';
         this.passwordSelector = '#password';
         this.signOnButtonSelector = '#signOnButton';
-        this.baseUrl = 'https://author-p50407-e1053252.adobeaemcloud.com/ui#/aem/sites.html';
+        this.baseUrl = 'https://author-p50407-e477588.adobeaemcloud.com/ui#/aem/sites.html';
     }
 
     async navigate() {
-        await this.page.goto('https://author-p50407-e1053252.adobeaemcloud.com/libs/granite/core/content/login.html?resource=%2F&$$login$$=%24%24login%24%24&j_reason=unknown&j_reason_code=unknown');
+        await this.page.goto('https://author-p50407-e477588.adobeaemcloud.com/libs/granite/core/content/login.html?resource=%2F&$$login$$=%24%24login%24%24&j_reason=unknown&j_reason_code=unknown');
     }
 
     async navigateToSites(fullContentPath) {
@@ -79,9 +79,11 @@ class LoginPage {
                 await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Publish', exact: true }).click();
                 await this.page.waitForTimeout(2000);
                 await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Done' }).click();
-
+                //await this.page.pause();
+                await this.page.waitForTimeout(10000);
                 await checkboxLocator.click();
-                await this.page.waitForTimeout(5000);
+                await this.page.waitForTimeout(2000);
+                console.log(previewedByValue);
                 if (previewedByValue.includes('Published') || previewedByValue.includes('Publication Pending') || previewedByValue.includes('workflow-process-service')) {
                     return true;
                 } else {

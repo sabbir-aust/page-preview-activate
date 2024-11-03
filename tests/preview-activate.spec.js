@@ -26,7 +26,7 @@ test.describe('Preview Page Activate', () => {
       const loginPage = new LoginPage(page);
 
       console.log(`Navigating to content path: ${contentPath}`);
-
+      //await page.pause();
       // Login to AEM
       await loginPage.navigate();
       await expect(page).toHaveTitle(/AEM/);

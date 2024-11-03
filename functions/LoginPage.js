@@ -62,38 +62,63 @@ class LoginPage {
         console.log(`Value for 'modifiedDateStr': ${modifiedDateStr}`);
 
         if (publishedBy !== 'Not published') {
-            const publishedDate = this.isRelativeDate(publishedDateStr) 
-                ? await this.parseRelativeDate(publishedDateStr) 
+            const publishedDate = this.isRelativeDate(publishedDateStr)
+                ? await this.parseRelativeDate(publishedDateStr)
                 : await this.parseAbsoluteDate(publishedDateStr);
             const modifiedDate = await this.parseAbsoluteDate(modifiedDateStr);
 
-            if (modifiedDate <= publishedDate) {
-                console.log("Activating preview...");
+            console.log("Activating preview...");
 
-                await this.page.waitForTimeout(2000);
-                await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Manage Publication' }).click();
-                await this.page.waitForTimeout(2000);
-                await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select Preview').click();
-                await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Next' }).click();
-                await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select All').click();
-                await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Publish', exact: true }).click();
-                await this.page.waitForTimeout(2000);
-                await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Done' }).click();
-                //await this.page.pause();
-                await this.page.waitForTimeout(10000);
-                await checkboxLocator.click();
-                await this.page.waitForTimeout(2000);
-                console.log(previewedByValue);
-                if (previewedByValue.includes('Published') || previewedByValue.includes('Publication Pending') || previewedByValue.includes('workflow-process-service')) {
-                    return true;
-                } else {
-                    console.log("Page is not Published or still in progress.");
-                    return false;
-                }
+            await this.page.waitForTimeout(2000);
+            await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Manage Publication' }).click();
+            await this.page.waitForTimeout(2000);
+            await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select Preview').click();
+            await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Next' }).click();
+            await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select All').click();
+            await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Publish', exact: true }).click();
+            await this.page.waitForTimeout(2000);
+            await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Done' }).click();
+            //await this.page.pause();
+            await this.page.waitForTimeout(10000);
+            await checkboxLocator.click();
+            await this.page.waitForTimeout(2000);
+            const previewedByValue = await this.page.frameLocator('iframe[name="Main Content"]').locator("//coral-columnview-preview-value[last()]").innerText()
+            console.log(previewedByValue);
+            if (previewedByValue.includes('Published') || previewedByValue.includes('Publication Pending') || previewedByValue.includes('workflow-process-service')) {
+                return true;
             } else {
-                console.log("The modified date is after the published date. Not activating preview.");
+                console.log("Page is not Published or still in progress.");
                 return false;
             }
+
+            // if (modifiedDate <= publishedDate) {
+            //     console.log("Activating preview...");
+
+            //     await this.page.waitForTimeout(2000);
+            //     await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Manage Publication' }).click();
+            //     await this.page.waitForTimeout(2000);
+            //     await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select Preview').click();
+            //     await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Next' }).click();
+            //     await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select All').click();
+            //     await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Publish', exact: true }).click();
+            //     await this.page.waitForTimeout(2000);
+            //     await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Done' }).click();
+            //     //await this.page.pause();
+            //     await this.page.waitForTimeout(10000);
+            //     await checkboxLocator.click();
+            //     await this.page.waitForTimeout(2000);
+            //     const previewedByValue = await this.page.frameLocator('iframe[name="Main Content"]').locator("//coral-columnview-preview-value[last()]").innerText()
+            //     console.log(previewedByValue);
+            //     if (previewedByValue.includes('Published') || previewedByValue.includes('Publication Pending') || previewedByValue.includes('workflow-process-service')) {
+            //         return true;
+            //     } else {
+            //         console.log("Page is not Published or still in progress.");
+            //         return false;
+            //     }
+            // } else {
+            //     console.log("The modified date is after the published date. Not activating preview.");
+            //     return false;
+            // }
         } else {
             console.log("Preview is not activated as the content is 'Not published'.");
             return false;

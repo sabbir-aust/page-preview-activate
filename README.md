@@ -28,19 +28,25 @@ After cloning, open the project folder in Visual Studio Code.
 
 ### Step 5: Install Playwright
 In the terminal (inside VS Code), run the following command to install Playwright:
-    npm install @playwright/test
+    ```bash
+    npm install @playwright/latest
+
 
 When prompted, select JavaScript as the language.
 When asked for a directory, type tests instead of e2e, then press Enter to complete the installation.
 
+
 ### Step 6: Run the Test
 After Playwright is installed, you can run a specific test by using the following command:
+ ```bash
     npx playwright test preview-activate.spec.js --project chromium
+
 
 ### Additional Resources
     Playwright Documentation
     Git Bash Documentation
     Visual Studio Code Documentation
+
 
 ### Following these steps will set up the project environment and prepare you to run Playwright tests.
 This README provides a clear, step-by-step guide for setting up the project, including installing necessary software, cloning the project, and running a Playwright test.

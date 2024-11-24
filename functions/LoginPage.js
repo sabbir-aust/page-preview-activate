@@ -1,4 +1,5 @@
 const { ExcelUtils } = require('../excelHelper'); // Assuming you have an ExcelUtils file to handle reading/writing Excel
+const envUrls = require('../data/env.js');
 
 class LoginPage {
     /**
@@ -12,15 +13,15 @@ class LoginPage {
         this.usernameSelector = '#username';
         this.passwordSelector = '#password';
         this.signOnButtonSelector = '#signOnButton';
-        this.baseUrl = 'https://author-p50407-e477588.adobeaemcloud.com/ui#/aem/sites.html';
+        this.baseUrl = envUrls.production;
     }
 
     async navigate() {
-        await this.page.goto('https://author-p50407-e477588.adobeaemcloud.com/libs/granite/core/content/login.html?resource=%2F&$$login$$=%24%24login%24%24&j_reason=unknown&j_reason_code=unknown');
+        await this.page.goto(`${envUrls.production}/libs/granite/core/content/login.html?resource=%2F&$$login$$=%24%24login%24%24&j_reason=unknown&j_reason_code=unknown`);
     }
 
     async navigateToSites(fullContentPath) {
-        const fullUrl = `${this.baseUrl}${fullContentPath}`;
+        const fullUrl = `${this.baseUrl}/ui#/aem/sites.html${fullContentPath}`;
         console.log(`Navigating to full URL: ${fullUrl}`);
         await this.page.goto(fullUrl);
     }
@@ -73,13 +74,16 @@ class LoginPage {
             await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Manage Publication' }).click();
             await this.page.waitForTimeout(2000);
             await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select Preview').click();
+            await this.page.waitForTimeout(2000);
             await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Next' }).click();
-            await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select All').click();
+            await this.page.waitForTimeout(2000);
+            // await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select All').click();
+            // await this.page.waitForTimeout(2000);
             await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Publish', exact: true }).click();
             await this.page.waitForTimeout(2000);
             await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Done' }).click();
             //await this.page.pause();
-            await this.page.waitForTimeout(10000);
+            await this.page.waitForTimeout(8000);
             await checkboxLocator.click();
             await this.page.waitForTimeout(2000);
             const previewedByValue = await this.page.frameLocator('iframe[name="Main Content"]').locator("//coral-columnview-preview-value[last()]").innerText()

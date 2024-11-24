@@ -1,7 +1,7 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const { LoginPage } = require('../functions/LoginPage');
-const users = require('../users/users');
+const users = require('../data/users');
 const { readExcel, writeExcel, updateStatus } = require('../excelHelper'); // Adjust the path as necessary
 
 const excelFilePath = './contentPaths.xlsx'; // Excel file located in the project root folder
@@ -21,7 +21,7 @@ test.describe('Preview Page Activate', () => {
   for (let i = 1; i < data.length; i++) { // Start from 1 to skip headers
     const contentPath = data[i][0]; // Get content path from the "Content Path" column
 
-    test(`should login and check preview activation for path: ${contentPath}`, async ({ browser }) => {
+    test(`should login and check preview activation for path: [${i}]: ${contentPath}`, async ({ browser }) => {
       const page = await browser.newPage();
       const loginPage = new LoginPage(page);
 

@@ -61,8 +61,11 @@ class LoginPage {
         console.log(`Value for 'Published By': ${publishedBy}`);
         console.log(`Value for 'publishedDateStr': ${publishedDateStr}`);
         console.log(`Value for 'modifiedDateStr': ${modifiedDateStr}`);
+        console.log(`Value for 'Previewd By': ${previewedByValue}`);
 
-        if (publishedBy !== 'Not published') {
+        //await this.page.pause();
+
+        if (publishedBy !== 'Not published' && previewedByValue !== 'workflow-process-service') {
             const publishedDate = this.isRelativeDate(publishedDateStr)
                 ? await this.parseRelativeDate(publishedDateStr)
                 : await this.parseAbsoluteDate(publishedDateStr);
@@ -77,8 +80,8 @@ class LoginPage {
             await this.page.waitForTimeout(2000);
             await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Next' }).click();
             await this.page.waitForTimeout(2000);
-            // await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select All').click();
-            // await this.page.waitForTimeout(2000);
+            await this.page.frameLocator('iframe[name="Main Content"]').getByLabel('Select All').click();
+            await this.page.waitForTimeout(2000);
             await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Publish', exact: true }).click();
             await this.page.waitForTimeout(2000);
             await this.page.frameLocator('iframe[name="Main Content"]').getByRole('button', { name: 'Done' }).click();
